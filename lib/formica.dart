@@ -44,6 +44,7 @@ class Formica extends StatefulWidget {
         .toList();
   }
 
+  /// [FormicaRoute]s
   final List<FormicaRoute> routes;
 
   /// Default animation in transition;
@@ -65,8 +66,11 @@ class Formica extends StatefulWidget {
 
 class _FormicaState extends State<Formica> {
   bool _isRoot = false;
+
   ValueNotifier<String> routeNotifier = ValueNotifier<String>('');
   FormicaRoute? parentRoute;
+
+  String _lastRequestPath = '';
 
   FormicaPath path = FormicaPath(
     '',
@@ -79,6 +83,8 @@ class _FormicaState extends State<Formica> {
   @override
   void initState() {
     super.initState();
+
+    /// Check if a there's a Formica instance in the ancestors
     if (context.findAncestorStateOfType<_FormicaState>() == null) {
       _isRoot = true;
     } else {
@@ -101,8 +107,13 @@ class _FormicaState extends State<Formica> {
   @override
   didUpdateWidget(covariant Formica oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _checkRoutes();
+    _checkRoutes((_isRoot?_lastRequestPath:null));
     setState(() {});
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 
   @override
@@ -125,6 +136,7 @@ class _FormicaState extends State<Formica> {
 
   bool _checkRoutes([String? requestPath]) {
     if (!mounted) return false;
+    
     _FormicaState? parentState =
         context.findAncestorStateOfType<_FormicaState>();
     if (requestPath == null && parentState != null) {
@@ -132,6 +144,8 @@ class _FormicaState extends State<Formica> {
     }
     requestPath ??= '/';
     requestPath = normalizePath(requestPath);
+
+    if (_isRoot) _lastRequestPath = requestPath;
 
     if (requestPath == path.requestPath) {
       path = FormicaPath(parentState?.path.requestPath ?? requestPath,
@@ -192,6 +206,8 @@ class _FormicaState extends State<Formica> {
   @override
   Widget build(BuildContext context) {
     if (_isRoot) {
+      print("BUILDING");
+      print(currentRoute?.routes.map((e) => e.raw,));
       return _FormicaNavigator(
         onRouteChange: _onRouteChange,
         child: _FormicaRouteBuilder(route: currentRoute),
@@ -387,7 +403,7 @@ class _FormicaNavigatorState extends NavigatorState {
   final GlobalKey<OverlayState> _overlayKey = GlobalKey<OverlayState>();
 
   final List<String> history = ['/'];
-  
+
   PlatformHistory _platformHistory = PlatformHistory();
 
   Widget? _child;
@@ -399,8 +415,7 @@ class _FormicaNavigatorState extends NavigatorState {
     _platformHistory.onPop.addListener(_onPlatformPop);
   }
 
-  _onPlatformPop()
-  {
+  _onPlatformPop() {
     pushNamed(normalizePath(_platformHistory.onPop.value));
   }
 
@@ -459,11 +474,10 @@ class _FormicaNavigatorState extends NavigatorState {
     }
 
     StackTrace currentStack = StackTrace.current;
-    _FormicaDialogEntry<T> entry =
-        _FormicaDialogEntry<T>(route as DialogRoute);
-    _overlayKey.currentState?.insert(entry);
-    _dialogRoutes.add(entry);
+
+    _FormicaDialogEntry<T> entry = _FormicaDialogEntry<T>(route as DialogRoute);
     try {
+      /// Checking with StackTrace if it's called from the same scope
       FormicaRoute formicaRoute = _stackTraceMap.entries
           .firstWhere(
             (e) => e.key.isChild(currentStack),
@@ -471,6 +485,9 @@ class _FormicaNavigatorState extends NavigatorState {
           .value;
       entry.route = formicaRoute;
     } catch (e) {}
+
+    _overlayKey.currentState?.insert(entry);
+    _dialogRoutes.add(entry);
 
     _clearUnusedOverlays();
 
@@ -480,7 +497,7 @@ class _FormicaNavigatorState extends NavigatorState {
   @override
   Widget build(BuildContext context) {
     return _child ??= Stack(children: [
-      (widget as _FormicaNavigator).child,
+      Opacity(opacity: 0.5, child: (widget as _FormicaNavigator).child),
       Overlay(
         key: _overlayKey,
       ),
@@ -532,8 +549,7 @@ class _FormicaRouteBuilderState extends State<_FormicaRouteBuilder> {
         child = (widget.route?.builder != null)
             ? await widget.route?.builder(context)
             : null;
-        if(widget.route?.animateIn != null)
-        {
+        if (widget.route?.animateIn != null) {
           Future<void> onComplete;
           Widget animated;
           (onComplete, animated) = widget.route!.animateIn!(context, child!);
@@ -571,13 +587,14 @@ class _FormicaDialogEntry<T> extends OverlayEntry {
   FormicaRoute? route;
 
   _FormicaDialogEntry(DialogRoute route)
-      : super(
-            builder: (context) => Stack(
-                  children: [
-                    buildBarrier(route, () => Navigator.of(context).pop()),
-                    route.buildPage(context, nullAnimation, nullAnimation),
-                  ],
-                ));
+      : super(builder: (context) {
+          return Stack(
+            children: [
+              buildBarrier(route, () => Navigator.of(context).pop()),
+              route.buildPage(context, nullAnimation, nullAnimation),
+            ],
+          );
+        });
 }
 
 Map<StackTrace, FormicaRoute> _stackTraceMap = {};

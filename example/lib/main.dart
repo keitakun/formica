@@ -75,7 +75,7 @@ class _MyAppState extends State<MyApp> {
                                   return ElevatedButton(
                                     onPressed: () => Navigator.of(context)
                                         .pushNamed('/test2'),
-                                    child: Text('Hello 2'),
+                                    child: Text('Hello 4'),
                                   );
                                 }),
                             FormicaRoute(
