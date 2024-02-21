@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:formica/src/stack_trace.dart';
 
@@ -45,6 +44,7 @@ class Formica extends StatefulWidget {
         .toList();
   }
 
+  /// [FormicaRoute]s
   final List<FormicaRoute> routes;
 
   /// Default animation in transition;
@@ -66,8 +66,11 @@ class Formica extends StatefulWidget {
 
 class _FormicaState extends State<Formica> {
   bool _isRoot = false;
+
   ValueNotifier<String> routeNotifier = ValueNotifier<String>('');
   FormicaRoute? parentRoute;
+
+  String _lastRequestPath = '';
 
   FormicaPath path = FormicaPath(
     '',
@@ -80,6 +83,8 @@ class _FormicaState extends State<Formica> {
   @override
   void initState() {
     super.initState();
+
+    /// Check if a there's a Formica instance in the ancestors
     if (context.findAncestorStateOfType<_FormicaState>() == null) {
       _isRoot = true;
     } else {
@@ -102,8 +107,13 @@ class _FormicaState extends State<Formica> {
   @override
   didUpdateWidget(covariant Formica oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _checkRoutes();
+    _checkRoutes((_isRoot?_lastRequestPath:null));
     setState(() {});
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 
   @override
@@ -126,6 +136,7 @@ class _FormicaState extends State<Formica> {
 
   bool _checkRoutes([String? requestPath]) {
     if (!mounted) return false;
+    
     _FormicaState? parentState =
         context.findAncestorStateOfType<_FormicaState>();
     if (requestPath == null && parentState != null) {
@@ -133,6 +144,8 @@ class _FormicaState extends State<Formica> {
     }
     requestPath ??= '/';
     requestPath = normalizePath(requestPath);
+
+    if (_isRoot) _lastRequestPath = requestPath;
 
     if (requestPath == path.requestPath) {
       path = FormicaPath(parentState?.path.requestPath ?? requestPath,
@@ -193,6 +206,8 @@ class _FormicaState extends State<Formica> {
   @override
   Widget build(BuildContext context) {
     if (_isRoot) {
+      print("BUILDING");
+      print(currentRoute?.routes.map((e) => e.raw,));
       return _FormicaNavigator(
         onRouteChange: _onRouteChange,
         child: _FormicaRouteBuilder(route: currentRoute),

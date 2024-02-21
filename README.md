@@ -1,14 +1,14 @@
-# formica
+> [!WARNING]  
+> **THIS IS A PROOF-OF-CONCEPT PACKAGE**  
+> The use in production is highly discouraged
 
-[!WARNING]
-**THIS IS A PROOF-OF-CONCEPT PACKAGE**  
-The use in production is highly discouraged
+# Formica
 
 Formica is a multi nested reactive router for Flutter.
 
-[!NOTE]
-This is a POC project. It's not optimized for performance nor using Flutter's best practices.  
-It uses the Flutter's Navigator, but it's not fully implemented to handle all Navigator's methods.
+> [!NOTE]
+> This is a POC project. It's not optimized for performance nor using Flutter's best practices.  
+> It uses the Flutter's Navigator, but it's not fully implemented to handle all Navigator's methods.
 
 ## Motivation
 Flutter's routing/navigation system can be a bit tricky for nested routing.  
