@@ -206,8 +206,6 @@ class _FormicaState extends State<Formica> {
   @override
   Widget build(BuildContext context) {
     if (_isRoot) {
-      print("BUILDING");
-      print(currentRoute?.routes.map((e) => e.raw,));
       return _FormicaNavigator(
         onRouteChange: _onRouteChange,
         child: _FormicaRouteBuilder(route: currentRoute),
