@@ -107,7 +107,7 @@ class _FormicaState extends State<Formica> {
   @override
   didUpdateWidget(covariant Formica oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _checkRoutes((_isRoot?_lastRequestPath:null));
+    _checkRoutes(_lastRequestPath);
     setState(() {});
   }
 
@@ -145,7 +145,7 @@ class _FormicaState extends State<Formica> {
     requestPath ??= '/';
     requestPath = normalizePath(requestPath);
 
-    if (_isRoot) _lastRequestPath = requestPath;
+    _lastRequestPath = requestPath;
 
     if (requestPath == path.requestPath) {
       path = FormicaPath(parentState?.path.requestPath ?? requestPath,
