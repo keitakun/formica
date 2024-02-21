@@ -206,8 +206,6 @@ class _FormicaState extends State<Formica> {
   @override
   Widget build(BuildContext context) {
     if (_isRoot) {
-      print("BUILDING");
-      print(currentRoute?.routes.map((e) => e.raw,));
       return _FormicaNavigator(
         onRouteChange: _onRouteChange,
         child: _FormicaRouteBuilder(route: currentRoute),
@@ -497,7 +495,7 @@ class _FormicaNavigatorState extends NavigatorState {
   @override
   Widget build(BuildContext context) {
     return _child ??= Stack(children: [
-      Opacity(opacity: 0.5, child: (widget as _FormicaNavigator).child),
+      (widget as _FormicaNavigator).child,
       Overlay(
         key: _overlayKey,
       ),
