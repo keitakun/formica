@@ -497,7 +497,7 @@ class _FormicaNavigatorState extends NavigatorState {
   @override
   Widget build(BuildContext context) {
     return _child ??= Stack(children: [
-      Opacity(opacity: 0.5, child: (widget as _FormicaNavigator).child),
+      (widget as _FormicaNavigator).child,
       Overlay(
         key: _overlayKey,
       ),
