@@ -136,7 +136,7 @@ class _FormicaState extends State<Formica> {
 
   bool _checkRoutes([String? requestPath]) {
     if (!mounted) return false;
-    
+
     _FormicaState? parentState =
         context.findAncestorStateOfType<_FormicaState>();
     if (requestPath == null && parentState != null) {
@@ -494,10 +494,16 @@ class _FormicaNavigatorState extends NavigatorState {
 
   @override
   Widget build(BuildContext context) {
-    return _child ??= Stack(children: [
-      (widget as _FormicaNavigator).child,
-      Overlay(
-        key: _overlayKey,
+    return Overlay(initialEntries: [
+      OverlayEntry(
+        builder: (context) => _child ??= Stack(
+          children: [
+            (widget as _FormicaNavigator).child,
+            Overlay(
+              key: _overlayKey,
+            ),
+          ],
+        ),
       ),
     ]);
   }
