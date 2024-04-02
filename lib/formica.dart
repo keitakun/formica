@@ -467,13 +467,13 @@ class _FormicaNavigatorState extends NavigatorState {
       return Future(() => null);
     }
 
-    if (route is! DialogRoute) {
-      throw Exception('Should only push [DialogRoute] instances');
+    if (route is! ModalRoute) {
+      throw Exception('Should only push [ModalRoute] instances');
     }
 
     StackTrace currentStack = StackTrace.current;
 
-    _FormicaDialogEntry<T> entry = _FormicaDialogEntry<T>(route as DialogRoute);
+    _FormicaDialogEntry<T> entry = _FormicaDialogEntry<T>(route as ModalRoute);
     try {
       /// Checking with StackTrace if it's called from the same scope
       FormicaRoute formicaRoute = _stackTraceMap.entries
@@ -578,7 +578,7 @@ class _FormicaDialogEntry<T> extends OverlayEntry {
   static Animation<double> nullAnimation =
       Animation.fromValueListenable(ValueNotifier(0));
 
-  static buildBarrier(DialogRoute route, [void Function()? onDismiss]) {
+  static buildBarrier(ModalRoute route, [void Function()? onDismiss]) {
     return ModalBarrier(
       onDismiss: onDismiss,
       color: route.barrierColor,
@@ -590,7 +590,7 @@ class _FormicaDialogEntry<T> extends OverlayEntry {
   Completer<T> popped = Completer<T>();
   FormicaRoute? route;
 
-  _FormicaDialogEntry(DialogRoute route)
+  _FormicaDialogEntry(ModalRoute route)
       : super(builder: (context) {
           return Stack(
             children: [
